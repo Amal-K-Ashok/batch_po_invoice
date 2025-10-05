@@ -19,11 +19,13 @@ else:
 
 MODEL_NAME = "gemini-2.5-flash"
 
+#Streamlit Page Setup
 st.set_page_config(page_title="Batch PO vs Invoice Comparator", layout="wide")
 
 st.title("📄 Batch PO vs Invoice Comparator (Streamlit + Gemini)")
 
 # ---- Helpers ----
+#Extract Text from PDF
 def extract_text_from_pdf(file_obj):
     """Extract text from all pages of a PDF."""
     try:
@@ -37,7 +39,7 @@ def extract_text_from_pdf(file_obj):
     except Exception as e:
         st.error(f"Could not read PDF: {e}")
         return ""
-
+# Call Gemini for Structure
 def call_gemini_for_structure(text, doc_type="Document"):
     """Use Gemini to extract structured JSON fields."""
     prompt = f"""
@@ -60,6 +62,7 @@ Text:
     except Exception as e:
         return None, f"Gemini parsing failed: {e}"
 
+#Token Similarity
 def token_similarity(a, b):
     """Token-based similarity (handles extra words like HS Code)."""
     a_tokens = set(re.findall(r"\w+", a.lower()))
@@ -67,9 +70,9 @@ def token_similarity(a, b):
     overlap = len(a_tokens & b_tokens) / max(len(a_tokens | b_tokens), 1)
     char_sim = SequenceMatcher(None, a.lower(), b.lower()).ratio()
     return (overlap + char_sim) / 2
+#Compare Structures
 def compare_structures(po_struct, inv_struct, item_match_threshold=0.7):
-    import pandas as pd
-
+    
     rows = []
     po_items = po_struct.get("items", []) if po_struct else []
     inv_items = inv_struct.get("items", []) if inv_struct else []
@@ -150,6 +153,7 @@ threshold = st.sidebar.slider("Item match threshold (similarity)", 50, 95, 70) /
 po_files = st.file_uploader("📥 Upload one or more Purchase Orders (PDF)", type=["pdf"], accept_multiple_files=True)
 inv_files = st.file_uploader("📥 Upload one or more Invoices (PDF)", type=["pdf"], accept_multiple_files=True)
 
+#Compare Button
 if st.button("Compare All Documents"):
     if not po_files or not inv_files:
         st.error("Please upload at least one PO and one Invoice.")
@@ -187,8 +191,10 @@ if st.button("Compare All Documents"):
             total_matches = sum(df["Status"]=="Match")
             st.success(f"✅ {total_matches}/{len(df)} items matched for this pair")
 
+#Clear Button
 if st.button("Clear All"):
     st.experimental_rerun()
 
+#Footer
 st.markdown("---")
 st.caption("Batch comparison of POs and Invoices using pdfplumber + Gemini. Matches tolerate extra info like HS codes.")
