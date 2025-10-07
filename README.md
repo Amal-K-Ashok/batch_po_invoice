@@ -94,8 +94,8 @@ ________________________________________
 ________________________________________
 👨‍💻 Author
 Amal K.
-📧 Email: (optional)
+📧 Email:
 💬 Built using Python, Streamlit, and Gemini AI
 ________________________________________
-Would you like me to also generate a ready-to-use requirements.txt file and folder structure (like app.py, .env.example, etc.) to go with this README?
+
 
